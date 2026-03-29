@@ -1,0 +1,44 @@
+# A descriptive name for your workflow
+name: Basic ML Code CI
+
+# Trigger the workflow on pushes to the main branch
+on:
+  push:
+    branches: [ "main" ]
+
+# Define the jobs to be run
+jobs:
+  test-and-lint:
+    # Use the latest version of Ubuntu as the runner environment
+    runs-on: ubuntu-latest
+
+    # Define the sequence of steps in the job
+    steps:
+      # Step 1: Check out your repository code
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up a specific version of Python
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      # Step 3: Install project dependencies from requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Step 4: Lint code with flake8 to check for style issues
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      # Step 5: Run a basic test to ensure the script executes
+      - name: Test with pytest
+        run: |
+          pytest
